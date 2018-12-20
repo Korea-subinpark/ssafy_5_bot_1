@@ -4,17 +4,20 @@ import json
 import requests
 import crawling_module
 import pascucci_scrap
-import os.path
+import random
+import multiprocessing
+from threading import Thread
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
-slack_token = "xoxb-503818135714-507655945173-30lvZo8PQTSdUANi9CqfJseo"
+slack_token = "xoxb-503818135714-507655945173-0rmy2thaDwRICiwWBRJ1KSFR"
 slack_client_id = "503818135714.507653967109"
 slack_client_secret = "f3f1ed75759311aef663a80e0b7c883f"
 slack_verification = "hN9lJABBCfl37mBeUs9jVjWY"
 
 slack = Slacker(slack_token)
+
 
 # Send a message to #general channel
 # slack.chat.post_message('#day4', 'Slacker Test')
@@ -26,6 +29,7 @@ slack = Slacker(slack_token)
 
 # Upload a file
 # slack.files.upload('hello.txt')
+
 
 def identifyintents(text, user_key):
     data_send = {
@@ -53,44 +57,15 @@ def identifyintents(text, user_key):
 
     return result
 
+
 # 이벤트 핸들하는 함수
 def _event_handler(event_type, slack_event):
     print(slack_event["event"])
 
     if event_type == "app_mention":
-        channel = slack_event["event"]["channel"]
-        text = slack_event["event"]["text"]
+        event_queue.put(slack_event)
 
-        user_text = text.split("> ")[1]
-
-        # identifyIntents
-        intent_identifier = identifyintents(user_text, "session") # intent = {speech, intent}
-
-        message = ""
-        # Event Handle (data, intent)
-        if intent_identifier["intent"] == "coffeebean":
-            slack.files.upload('../img/coffeebean.jpg', channels=channel)
-            message = identifyintents["speech"] + "\n"
-            message += crawling_module.coffeebean()
-        elif intent_identifier["intent"] == "hollys":
-            slack.files.upload('../img/hollyscoffee.gif', channels=channel)
-            message = intent_identifier["speech"] + "\n"
-            message += crawling_module.hollys()
-        elif intent_identifier["intent"] == "pascucci":
-            slack.files.upload("../img/pascucci.jpg", channels=channel)
-            message = intent_identifier["speech"] + "\n"
-            message += pascucci_scrap.passcucci()
-        elif intent_identifier["intent"] == "menu":
-            # slack.files.upload() 커피사진
-            message = intent_identifier["speech"] + "\n"
-        else:
-            message = intent_identifier["speech"]
-
-        # message = "Slacker Test"
-
-        # slack.chat.post_message(channel, message)
-        slack.chat.post_message(channel, message)
-
+        print("make_response")
         return make_response("App mention message has been sent", 200, )
 
     # ============= Event Type Not Found! ============= #
@@ -103,7 +78,6 @@ def _event_handler(event_type, slack_event):
 @app.route("/listening", methods=["GET", "POST"])
 def hears():
     slack_event = json.loads(request.data)
-
     if "challenge" in slack_event:
         return make_response(slack_event["challenge"], 200, {"content_type":
                                                                  "application/json"
@@ -122,6 +96,47 @@ def hears():
     return make_response("[NO EVENT IN SLACK REQUEST] These are not the droids\
                          you're looking for.", 404, {"X-Slack-No-Retry": 1})
 
+def processing_event(queue):
+    while True:
+        # 큐가 비어있지 않은 경우 로직 실행
+        if not queue.empty():
+            slack_event = queue.get()
+
+            channel = slack_event["event"]["channel"]
+            text = slack_event["event"]["text"]
+
+            user_text = text.split("> ")[1]
+
+            # identifyIntents
+            intent_identifier = identifyintents(user_text, "session")  # intent = {speech, intent}
+
+            message = ""
+            # Event Handle (data, intent)
+            if intent_identifier["intent"] == "coffeebean":
+                slack.files.upload('../img/hollyscoffee.jpg', channels=channel)
+                message = intent_identifier["speech"] + "\n"
+                message += crawling_module.coffeebean()
+                return make_response("App mention message has been sent", 200, )
+            elif intent_identifier["intent"] == "hollys":
+                slack.files.upload('../img/hollyscoffee.gif', channels=channel)
+                message = intent_identifier["speech"] + "\n"
+                message += crawling_module.hollys()
+            elif intent_identifier["intent"] == "pascucci":
+                slack.files.upload("../img/pascucci.jpg", channels=channel)
+                message = intent_identifier["speech"] + "\n"
+                message += pascucci_scrap.passcucci()
+            elif intent_identifier["intent"] == "menu":
+                path = "../coffeeMenu/" + str(random.randint(1, 12)) + ".PNG"
+                slack.files.upload(path, channels=channel)
+                message = intent_identifier["speech"] + "\n"
+            else:
+                message = intent_identifier["speech"]
+
+            # message = "Slacker Test"
+
+            # slack.chat.post_message(channel, message)
+            slack.chat.post_message(channel, message)
+
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
@@ -129,4 +144,11 @@ def index():
 
 
 if __name__ == '__main__':
+    event_queue = multiprocessing.Queue()
+
+    p = Thread(target=processing_event, args=(event_queue,))
+    p.start()
+    print("thread start!")
+
     app.run(host='0.0.0.0', port=8080)
+    p.join()
