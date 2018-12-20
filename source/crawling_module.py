@@ -14,17 +14,17 @@ def coffeebean():
         list.append(text.get_text())
     # for i in range(0, 2):
     #     print("이벤트" + str(i)+ list[i])
-    print(list)
+    # print(list)
 
     coffeebean = ""
     for i in range(0,len(list)):
         coffeebean += "이벤트 " + str(i + 1) +": " + list[i].strip() + "\n"
         # print("이벤트 : " + str(i+1) + list[i].strip() + "\n")
 
-    print(coffeebean)
+    # print(coffeebean)
     return coffeebean
 
-def hollys():
+def hollys()
     url = "http://www.hollys.co.kr/news/event/list.do"
     soup = urllib.request.urlopen(url).read()
     # URL 주소에 있는 HTML 코드를 soup에 저장합니다.
@@ -36,9 +36,9 @@ def hollys():
         list.append(naver_text.get_text())
     for event in list:
         abc.append(event.strip().replace('\n', ''))
-    print(abc)
+    # print(abc[0][-23:])
     hollys = ""
     for i in range(0,len(abc)):
-        hollys += "이벤트 " + str(i +1) +": " + abc[i].strip() + "\n"
-    print(hollys)
+        hollys += "이벤트 " + str(i +1) +": " + abc[i][0:-29].strip() + " / 공지 기간 : " + abc[i][-23:] +"\n"
+    # print(hollys)
     return hollys
