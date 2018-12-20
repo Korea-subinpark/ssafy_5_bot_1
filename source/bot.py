@@ -11,7 +11,7 @@ from threading import Thread
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
-slack_token = "xoxb-503818135714-507655945173-0rmy2thaDwRICiwWBRJ1KSFR"
+slack_token = "xoxb-503818135714-507655945173-nirvXFLZ5okONQNcqnqPPgiE"
 slack_client_id = "503818135714.507653967109"
 slack_client_secret = "f3f1ed75759311aef663a80e0b7c883f"
 slack_verification = "hN9lJABBCfl37mBeUs9jVjWY"
@@ -64,8 +64,6 @@ def _event_handler(event_type, slack_event):
 
     if event_type == "app_mention":
         event_queue.put(slack_event)
-
-        print("make_response")
         return make_response("App mention message has been sent", 200, )
 
     # ============= Event Type Not Found! ============= #
@@ -96,7 +94,7 @@ def hears():
     return make_response("[NO EVENT IN SLACK REQUEST] These are not the droids\
                          you're looking for.", 404, {"X-Slack-No-Retry": 1})
 
-def processing_event(queue):
+def deffered_event_processing(queue):
     while True:
         # 큐가 비어있지 않은 경우 로직 실행
         if not queue.empty():
@@ -113,10 +111,9 @@ def processing_event(queue):
             message = ""
             # Event Handle (data, intent)
             if intent_identifier["intent"] == "coffeebean":
-                slack.files.upload('../img/hollyscoffee.jpg', channels=channel)
+                slack.files.upload('../img/coffeebean.jpg', channels=channel)
                 message = intent_identifier["speech"] + "\n"
                 message += crawling_module.coffeebean()
-                return make_response("App mention message has been sent", 200, )
             elif intent_identifier["intent"] == "hollys":
                 slack.files.upload('../img/hollyscoffee.gif', channels=channel)
                 message = intent_identifier["speech"] + "\n"
@@ -146,7 +143,7 @@ def index():
 if __name__ == '__main__':
     event_queue = multiprocessing.Queue()
 
-    p = Thread(target=processing_event, args=(event_queue,))
+    p = Thread(target=deffered_event_processing, args=(event_queue,))
     p.start()
     print("thread start!")
 
