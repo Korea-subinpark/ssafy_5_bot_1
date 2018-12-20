@@ -24,7 +24,7 @@ def coffeebean():
     # print(coffeebean)
     return coffeebean
 
-def hollys()
+def hollys():
     url = "http://www.hollys.co.kr/news/event/list.do"
     soup = urllib.request.urlopen(url).read()
     # URL 주소에 있는 HTML 코드를 soup에 저장합니다.
