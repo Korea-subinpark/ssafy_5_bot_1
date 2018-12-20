@@ -1,8 +1,6 @@
 import urllib.request
 from bs4 import BeautifulSoup
 
-def main():
-    # URL 데이터를 가져올 사이트 url 입력
 def coffeebean():
     url = "http://www.coffeebeankorea.com/promotion/list.asp"
     soup = urllib.request.urlopen(url).read()
