@@ -4,11 +4,12 @@ import json
 import requests
 import crawling_module
 import pascucci_scrap
+import os.path
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
-slack_token = "xoxb-503818135714-507655945173-wUMPEzPeutdAhE3JzFuQrCCh"
+slack_token = "xoxb-503818135714-507655945173-30lvZo8PQTSdUANi9CqfJseo"
 slack_client_id = "503818135714.507653967109"
 slack_client_secret = "f3f1ed75759311aef663a80e0b7c883f"
 slack_verification = "hN9lJABBCfl37mBeUs9jVjWY"
@@ -68,17 +69,20 @@ def _event_handler(event_type, slack_event):
         message = ""
         # Event Handle (data, intent)
         if intent_identifier["intent"] == "coffeebean":
+            slack.files.upload('../img/coffeebean.jpg', channels=channel)
             message = identifyintents["speech"] + "\n"
             message += crawling_module.coffeebean()
-            pass
         elif intent_identifier["intent"] == "hollys":
+            slack.files.upload('../img/hollyscoffee.gif', channels=channel)
             message = intent_identifier["speech"] + "\n"
             message += crawling_module.hollys()
-            pass
         elif intent_identifier["intent"] == "pascucci":
+            slack.files.upload("../img/pascucci.jpg", channels=channel)
             message = intent_identifier["speech"] + "\n"
             message += pascucci_scrap.passcucci()
-            pass
+        elif intent_identifier["intent"] == "menu":
+            # slack.files.upload() 커피사진
+            message = intent_identifier["speech"] + "\n"
         else:
             message = intent_identifier["speech"]
 
