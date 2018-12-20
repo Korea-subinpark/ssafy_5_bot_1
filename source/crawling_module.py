@@ -42,6 +42,3 @@ def hollys()
         hollys += "이벤트 " + str(i +1) +": " + abc[i].strip() + "\n"
     print(hollys)
     return hollys
-
-if __name__ == "__main__":
-    main()
