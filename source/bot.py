@@ -8,7 +8,7 @@ import pascucci_scrap
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
-slack_token = "xoxb-503818135714-507655945173-O2DzGwWs0qDovtM6g3aUP4pL"
+slack_token = "xoxb-503818135714-507655945173-wUMPEzPeutdAhE3JzFuQrCCh"
 slack_client_id = "503818135714.507653967109"
 slack_client_secret = "f3f1ed75759311aef663a80e0b7c883f"
 slack_verification = "hN9lJABBCfl37mBeUs9jVjWY"
@@ -63,24 +63,24 @@ def _event_handler(event_type, slack_event):
         user_text = text.split("> ")[1]
 
         # identifyIntents
-        intent_identifyer = identifyintents(user_text, "session") # intent = {speech, intent}
+        intent_identifier = identifyintents(user_text, "session") # intent = {speech, intent}
 
         message = ""
         # Event Handle (data, intent)
-        if intent_identifyer["intent"] == "coffeebay":
-            message = intent_identifyer["speech"] + "\n"
-            # message += crawling_module.coffeebeancrawling()
+        if intent_identifier["intent"] == "coffeebean":
+            message = identifyintents["speech"] + "\n"
+            message += crawling_module.coffeebean()
             pass
-        elif intent_identifyer["intent"] == "hollys":
-            message = intent_identifyer["speech"] + "\n"
-            # message += crawling_module.hollyscrawling()
+        elif intent_identifier["intent"] == "hollys":
+            message = intent_identifier["speech"] + "\n"
+            message += crawling_module.hollys()
             pass
-        elif intent_identifyer["intent"] == "pascucci":
-            message = intent_identifyer["speech"] + "\n"
-            # message += pascucci_scrap()
+        elif intent_identifier["intent"] == "pascucci":
+            message = intent_identifier["speech"] + "\n"
+            message += pascucci_scrap.passcucci()
             pass
         else:
-            message = intent_identifyer["speech"]
+            message = intent_identifier["speech"]
 
         # message = "Slacker Test"
 
