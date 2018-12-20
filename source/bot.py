@@ -2,6 +2,8 @@ from slacker import Slacker
 from flask import Flask, request, make_response
 import json
 import requests
+import crawling_module
+import pascucci_scrap
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -66,16 +68,16 @@ def _event_handler(event_type, slack_event):
         message = ""
         # Event Handle (data, intent)
         if intent_identifyer["intent"] == "coffeebay":
-            message = intent_identifyer["speech"]
-            message += "\ncoffeebean"
+            message = intent_identifyer["speech"] + "\n"
+            # message += crawling_module.coffeebeancrawling()
             pass
         elif intent_identifyer["intent"] == "hollys":
-            message = intent_identifyer["speech"]
-            message += "\nhollys"
+            message = intent_identifyer["speech"] + "\n"
+            # message += crawling_module.hollyscrawling()
             pass
         elif intent_identifyer["intent"] == "pascucci":
-            message = intent_identifyer["speech"]
-            message += "\npascucci"
+            message = intent_identifyer["speech"] + "\n"
+            # message += pascucci_scrap()
             pass
         else:
             message = intent_identifyer["speech"]
